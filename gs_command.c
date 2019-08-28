@@ -6,34 +6,28 @@
 
 #define _XTAL_FREQ 8000000
 
-#define COMMAND_DELAY 16667
-#define START_DELAY 33334
-#define RAPID_DELAY 16667
+#define WAIT_1MS 1000
+#define COMMAND_DELAY 33334
+#define START_DELAY 66668
 
 __CONFIG(FOSC_INTOSCIO & WDTE_OFF & PWRTE_ON & MCLRE_OFF);
 
 void start_plus()
 {
   if(GP3 == 0) {
-    __delay_us(COMMAND_DELAY);
+    __delay_us(WAIT_1MS);
     if(GP3 == 0) {
-      for(int i=0; i<44; i++) { // SHOT4
-        GP1 = 0;
+      for(int i=0; i<77; i++) {
+        if(i < 44) {
+          GP1 = 0; // SHOT4
+        }
+        if(i < 33) {
+          GP0 = 0; // SHOT3
+        }
+        GP4 = 0; // SHOT2
         __delay_us(COMMAND_DELAY);
         GP1 = 1;
-        __delay_us(COMMAND_DELAY);
-      }
-
-      for(int i=0; i<33; i++) { // SHOT3
-        GP0 = 0;
-        __delay_us(COMMAND_DELAY);
         GP0 = 1;
-        __delay_us(COMMAND_DELAY);
-      }
-
-      for(int i=0; i<77; i++) { // SHOT2
-        GP4 = 0;
-        __delay_us(COMMAND_DELAY);
         GP4 = 1;
         __delay_us(COMMAND_DELAY);
       }
@@ -48,14 +42,10 @@ void start_plus()
   }
 }
 
-void shot2_pulse()
+void shot2_inout()
 {
-  if(GP5 == 0) {
-    GP4 = 0;
-    __delay_us(RAPID_DELAY);
-    GP4 = 1;
-    __delay_us(RAPID_DELAY);
-  }
+  GP4 = GP5;
+  __delay_us(WAIT_1MS);
 }
 
 void main()
@@ -73,6 +63,6 @@ void main()
 
   while(1) {
     start_plus();
-    shot2_pulse();
+    shot2_inout();
   }
 }
